@@ -1025,11 +1025,12 @@ function renderDash(){
     main.innerHTML = sampleBanner() + emptyView();
     return;
   }
-  const d = (cur, prevV, kind, dec) => {
+  // hide を付けた項目は、目隠し中は前月比の増減額も伏せる（金額が読めてしまうため）
+  const d = (cur, prevV, kind, dec, hide) => {
     if (!p || !isFinite(prevV) || !prevV || !isFinite(cur)) return '<div class="d flat">前月比 —</div>';
     const diff = cur - prevV;
     const body = kind === "pt" ? ptDelta(diff, dec) : kind === "num" ? numDelta(diff) : yenDelta(diff);
-    return '<div class="d ' + dirClass(diff) + '">前月比 ' + body + "</div>";
+    return '<div class="d ' + dirClass(diff) + '">前月比 ' + (hide ? hideVal(body) : body) + "</div>";
   };
   const tot = bs.reduce((s,b)=>s+(+entryOf(ym,b.id).value||0),0) || 1;
   const lyKey = ymAdd(ym,-12), ly = hasData(lyKey) ? totals(lyKey) : null;
@@ -1056,16 +1057,16 @@ function renderDash(){
     + '</div></div></div>';
 
   h += '<div class="block"><div class="sec"><h2>資 産</h2><div class="rule"></div><span class="note">前月比</span></div><div class="grid">'
-    + tile("総投資額（取得額）", yen(t.cost), "", d(t.cost, p&&p.cost))
-    + tile("評価損益", '<span class="' + dirClass(t.gain) + '">' + yenDelta(t.gain) + "</span>", "", d(t.gain, p&&p.gain))
-    + tile("総株式数", fmtN(t.shares), "株", d(t.shares, p&&p.shares, "num"))
-    + tile("平均取得単価", isFinite(t.avg) ? "¥" + fmtN(t.avg,1) : "—", "", d(t.avg, p&&p.avg))
+    + tile("総投資額（取得額）", hideVal(yen(t.cost)), "", d(t.cost, p&&p.cost, "yen", 0, true))
+    + tile("評価損益", '<span class="' + dirClass(t.gain) + '">' + hideVal(yenDelta(t.gain)) + "</span>", "", d(t.gain, p&&p.gain, "yen", 0, true))
+    + tile("総株式数", hideVal(fmtN(t.shares)), maskOn() ? "" : "株", d(t.shares, p&&p.shares, "num", 0, true))
+    + tile("平均取得単価", hideVal(isFinite(t.avg) ? "¥" + fmtN(t.avg,1) : "—"), "", d(t.avg, p&&p.avg, "yen", 0, true))
     + '</div></div>';
 
   h += '<div class="block"><div class="sec"><h2>配 当</h2><div class="rule"></div><span class="note">年間予想ベース</span></div><div class="grid g3">'
-    + tile("年間配当総額", yen(t.div), "", d(t.div, p&&p.div))
-    + tile("月あたり配当", yen(t.perMonth), "", '<div class="d flat">年間 ÷ 12</div>')
-    + tile("1日あたり配当", yen(t.perDay), "", '<div class="d flat">年間 ÷ 365</div>')
+    + tile("年間配当総額", hideVal(yen(t.div)), "", d(t.div, p&&p.div, "yen", 0, true))
+    + tile("月あたり配当", hideVal(yen(t.perMonth)), "", '<div class="d flat">年間 ÷ 12</div>')
+    + tile("1日あたり配当", hideVal(yen(t.perDay)), "", '<div class="d flat">年間 ÷ 365</div>')
     + tile("取得額利回り", pct(t.yoc), "", d(t.yoc, p&&p.yoc, "pt"))
     + tile("時価利回り", pct(t.cy), "", d(t.cy, p&&p.cy, "pt"))
     + tile("1株あたり配当", isFinite(t.perShare) ? "¥" + fmtN(t.perShare,1) : "—", "", '<div class="d flat">年間配当 ÷ 株数</div>')
@@ -1073,9 +1074,11 @@ function renderDash(){
   if (state.cfg.goalDividend > 0){
     const r = Math.min(1, t.div / state.cfg.goalDividend);
     h += '<div class="goal" style="margin-top:9px">'
-      + '<div class="top"><span>年間配当の目標</span><span class="num"><b>' + pct(r,1) + "</b> 達成</span></div>"
+      // 年間配当を伏せているのに達成率と目標額が出ていると、掛け算で金額が割れてしまう
+      + '<div class="top"><span>年間配当の目標</span><span class="num"><b>' + hideVal(pct(r,1)) + "</b> 達成</span></div>"
       + '<div class="bar"><i style="width:' + (r*100).toFixed(1) + '%"></i></div>'
-      + '<div class="btm"><span class="num">' + yen(t.div) + " / " + yen(state.cfg.goalDividend) + '</span><span class="num">残り ' + yen(Math.max(0, state.cfg.goalDividend - t.div)) + "</span></div></div>";
+      + '<div class="btm"><span class="num">' + hideVal(yen(t.div) + " / " + yen(state.cfg.goalDividend))
+      + '</span><span class="num">' + hideVal("残り " + yen(Math.max(0, state.cfg.goalDividend - t.div))) + "</span></div></div>";
   }
   h += "</div>";
 
@@ -1103,9 +1106,13 @@ function renderDash(){
     const e = entryOf(ym,b.id), g = (+e.value||0) - (+e.cost||0);
     h += '<div class="brow">'
       + '<div class="nm"><span class="dot" style="background:' + seriesColor(i) + '"></span><span>' + esc(b.name) + "</span></div>"
-      + '<div class="mv num">' + yen(e.value) + "</div>"
-      + '<div class="m3 num ' + dirClass(g) + '">' + gainWord(g) + " " + yenDelta(g) + " ・ 構成比 " + (tot ? pct((+e.value||0)/tot,1) : "—") + "</div>"
-      + '<div class="m2 num">取得 ' + yen(e.cost) + " ・ 配当 " + yen(e.div) + " ・ " + fmtN(e.shares) + "株</div>"
+      + '<div class="mv num">' + hideVal(yen(e.value)) + "</div>"
+      + '<div class="m3 num ' + dirClass(g) + '">' + gainWord(g) + " " + hideVal(yenDelta(g))
+        + " ・ 構成比 " + (tot ? pct((+e.value||0)/tot,1) : "—") + "</div>"
+      // 目隠し中は3つ並べると「••••••」だらけで読みにくいので、1つにまとめる
+      + '<div class="m2 num">' + (maskOn()
+          ? "取得・配当・株数 " + MASK
+          : "取得 " + yen(e.cost) + " ・ 配当 " + yen(e.div) + " ・ " + fmtN(e.shares) + "株") + "</div>"
       + "</div>";
   });
   h += "</div></div>";
