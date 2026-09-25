@@ -174,7 +174,9 @@ main{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 16px 28px}
   background:var(--lacquer);color:#F1E8D6;box-shadow:var(--shadow);
   border:1px solid rgba(217,180,74,.28);
 }
-.hero .wm{position:absolute;right:-18px;top:-10px;width:160px;height:136px;opacity:.09}
+/* 飾りの透かし。position:absolute のぶんボタンより手前に来るので、
+   指のタップを素通りさせないと目隠しボタンが押せなくなる */
+.hero .wm{position:absolute;right:-18px;top:-10px;width:160px;height:136px;opacity:.09;pointer-events:none}
 .hero .k{font-size:12.5px;letter-spacing:.24em;color:rgba(235,206,121,.8)}
 .hero .v{font-size:clamp(32px,9.5vw,44px);font-weight:700;line-height:1.1;margin-top:4px}
 .hero .v small{font-size:.5em;font-weight:500;opacity:.65;margin-left:3px}
@@ -182,6 +184,7 @@ main{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 16px 28px}
 .hero .vrow{display:flex;align-items:center;gap:10px}
 .hero .vrow .v{flex:1;min-width:0}
 .eye{
+  position:relative;z-index:1;
   flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:11px;
   color:rgba(241,232,214,.78);border:1px solid rgba(217,180,74,.32);background:rgba(241,232,214,.06);
 }
