@@ -1,6 +1,6 @@
 /* 通信できないときのために、表示したものを控えておく。
    つながるときは必ず最新を取りに行くので、更新しても古い画面は残らない */
-var CACHE = "kabutocho-v1";
+var CACHE = "kabutocho-v2";
 var ASSETS = ["./", "./index.html", "./manifest.json",
               "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png",
               "./icon-180.png", "./icon-32.png"];
@@ -26,7 +26,11 @@ self.addEventListener("fetch", function (e) {
       return r;
     }).catch(function () {
       return caches.match(e.request).then(function (r) {
-        return r || caches.match("./index.html");
+        if (r) return r;
+        // 画面の読み込みだけアプリ本体で肩代わりする。
+        // 何にでも index.html を返すと、外部への問い合わせの失敗がHTMLに化けて紛らわしい
+        if (e.request.mode === "navigate") return caches.match("./index.html");
+        return Response.error();
       });
     })
   );

@@ -179,7 +179,17 @@ main{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 16px 28px}
 .hero .v{font-size:clamp(32px,9.5vw,44px);font-weight:700;line-height:1.1;margin-top:4px}
 .hero .v small{font-size:.5em;font-weight:500;opacity:.65;margin-left:3px}
 .hero .man{font-size:13.5px;color:rgba(241,232,214,.55);margin-top:2px}
-.hero .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.hero .vrow{display:flex;align-items:center;gap:10px}
+.hero .vrow .v{flex:1;min-width:0}
+.eye{
+  flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:11px;
+  color:rgba(241,232,214,.78);border:1px solid rgba(217,180,74,.32);background:rgba(241,232,214,.06);
+}
+.eye:hover{background:rgba(217,180,74,.16);color:#EBCE79}
+.eye[aria-pressed="true"]{background:rgba(217,180,74,.2);color:#EBCE79;border-color:rgba(217,180,74,.55)}
+.hero .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
+.hero .yoc{margin-left:auto;text-align:right;font-size:12.5px;color:rgba(241,232,214,.6);white-space:nowrap}
+.hero .yoc b{display:block;font-size:17px;font-weight:700;color:#EBCE79;margin-top:1px}
 .hero .pill{
   display:inline-flex;align-items:baseline;gap:6px;padding:5px 10px;border-radius:999px;
   background:rgba(241,232,214,.08);border:1px solid rgba(241,232,214,.14);font-size:13.5px;
@@ -192,6 +202,8 @@ main{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 16px 28px}
   .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
   .grid.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
   .grid.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* 広い画面では4列になり、タイル1枚の幅は携帯より狭い。桁の多い金額が切れないように */
+  .tile .v{font-size:18px}
 }
 .tile{
   background:var(--surface);border:1px solid var(--line);border-radius:12px;
@@ -280,6 +292,35 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .csum{display:flex;justify-content:space-between;gap:8px;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink-3)}
 .csum b{color:var(--ink-2)}
 
+/* 今月の買付の合計・予定額・残り */
+.buysum{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);display:grid;gap:8px}
+.buysum .r{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.buysum .r>span{font-size:13px;color:var(--ink-3);white-space:nowrap}
+.buysum .r b{font-size:19px;font-weight:700;white-space:nowrap}
+.buysum .r input{
+  width:150px;max-width:55%;padding:5px 9px;border:1px solid var(--line-2);border-radius:8px;
+  background:var(--ground);text-align:right;font-size:19px;font-weight:700;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+}
+.buysum .r input:focus{border-color:var(--gold);background:var(--surface)}
+
+/* 検討中の銘柄 */
+.watch{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:11px;box-shadow:var(--shadow-s)}
+.watch.hit{border-color:var(--gold);background:linear-gradient(0deg,var(--gold-soft),var(--gold-soft)),var(--surface)}
+.watch .whd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.watch .whd .nm{font-size:15.5px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.chip.buy{background:var(--gold);color:#1E1813}
+.chip.wait{background:var(--surface-2);color:var(--ink-3);font-weight:500}
+.chip.done{background:var(--surface-2);color:var(--gold);font-weight:700}
+.watch .wsum{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink-3)}
+.watch .wsum b{color:var(--ink-2)}
+.wrow{display:flex;align-items:center;gap:9px;padding:11px 13px;border-top:1px solid var(--line)}
+.wrow:first-child{border-top:0}
+.wrow .nm{flex:1;min-width:0}
+.wrow .nm b{display:block;font-size:14.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wrow .nm small{font-size:12px;color:var(--ink-3)}
+
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   padding:9px 14px;border-radius:10px;border:1px solid var(--line-2);
@@ -367,6 +408,36 @@ textarea.io{
 }
 .saveflag.on{opacity:1}
 
+/* ---------- 写真から数字を読む ---------- */
+.ocr{
+  position:fixed;inset:0;z-index:60;background:#14100C;display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.ocr .bar{display:flex;align-items:center;gap:10px;padding:10px 14px;color:#F1E8D6;border-bottom:1px solid rgba(217,180,74,.3)}
+.ocr .bar .t{flex:1;font-size:15.5px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ocr .bar button{color:#EBCE79;font-size:14px;padding:7px 13px;border:1px solid rgba(217,180,74,.4);border-radius:9px}
+.ocrchips{display:flex;gap:6px;padding:10px 14px;overflow-x:auto}
+.ocrchips button{
+  white-space:nowrap;padding:8px 13px;border-radius:999px;border:1px solid rgba(217,180,74,.35);
+  color:rgba(241,232,214,.75);font-size:13.5px;background:transparent;
+}
+.ocrchips button[aria-current="true"]{background:#EBCE79;color:#1E1813;font-weight:700;border-color:#EBCE79}
+.ocrchips button.done{color:rgba(241,232,214,.4);border-style:dashed}
+.ocrstage{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;touch-action:none;background:#0C0907}
+.ocrstage canvas{max-width:100%;max-height:100%;display:block;touch-action:none}
+.ocrsel{position:absolute;border:2px solid #EBCE79;background:rgba(235,206,121,.2);pointer-events:none;border-radius:2px}
+.ocrfoot{
+  padding:12px 14px;color:rgba(241,232,214,.82);font-size:13.5px;line-height:1.6;
+  border-top:1px solid rgba(217,180,74,.25);min-height:56px;display:flex;align-items:center;gap:10px;
+}
+.ocrfoot b{color:#EBCE79}
+.spin{
+  flex:none;width:16px;height:16px;border-radius:50%;border:2px solid rgba(235,206,121,.3);
+  border-top-color:#EBCE79;animation:sp .8s linear infinite;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+.modes .cam{margin-left:auto;border-color:var(--gold);color:var(--gold)}
+
 /* ---------- 数字パッド ---------- */
 /* スマホでは OS のキーボードを一切出さず、このパッドだけで数字を入れる。
    日本語入力の変換（辞書登録した店番など）が割り込む余地をなくすため */
@@ -446,6 +517,20 @@ input[readonly]{cursor:pointer;-webkit-user-select:none;user-select:none}
   <div class="pad" id="pad" hidden>
     <div class="ph"><span class="who" id="padWho"></span><span class="val num" id="padVal"></span></div>
     <div class="keys" id="padKeys"></div>
+  </div>
+
+  <input type="file" id="ocrFile" accept="image/*" hidden>
+  <div class="ocr" id="ocr" hidden>
+    <div class="bar">
+      <span class="t" id="ocrTitle">写真から読み取り</span>
+      <button type="button" data-act="ocrClose">閉じる</button>
+    </div>
+    <div class="ocrchips" id="ocrChips"></div>
+    <div class="ocrstage" id="ocrStage">
+      <canvas id="ocrCanvas"></canvas>
+      <div class="ocrsel" id="ocrSel" hidden></div>
+    </div>
+    <div class="ocrfoot" id="ocrFoot"></div>
   </div>
 
   <nav class="tabs" id="tabs">
@@ -546,7 +631,7 @@ const state = {
   tab: "dash",
   month: ymNow(),
   demo: true,
-  cfg: { brokers: [], goalDividend: 0, tickers: {} },
+  cfg: { brokers: [], goalDividend: 0, monthlyBudget: 0, tickers: {}, watch: [] },
   months: {},          // "YYYY-MM" -> {month, entries:{bid:{cost,value,div,shares}}, buys:[], received}
 };
 let db = null, downloads = null, dbReady = false, editingLock = null;
@@ -595,11 +680,13 @@ function yenShort(n){
   return fmtN(n) + "円";
 }
 function pct(n, d){ return isFinite(n) ? fmtN(n*100, d===undefined?2:d) + "%" : "—"; }
-function signed(n){ return (n>0?"+":n<0?"−":"") + fmtN(Math.abs(Math.round(n))); }
+function signed(n){ return (n>0?"+":n<0?"-":"") + fmtN(Math.abs(Math.round(n))); }
 function dirClass(n){ return n > 0 ? "up" : n < 0 ? "down" : "flat"; }
 /* ▲ は決算書ではマイナスを表す記号なので使わない。符号をそのまま出す。
    色は証券会社の画面にならい プラス＝緋色・マイナス＝藍色。色だけに頼らず必ず符号を添える */
-function sgnMark(n){ return n > 0 ? "＋" : n < 0 ? "−" : "±"; }
+/* 符号は必ず半角。全角の「＋」「−」は等幅フォントに無く日本語書体に落ちるため、
+   1文字で数字2文字ぶんの幅を食い、iPad などで桁が「…」に切れる */
+function sgnMark(n){ return n > 0 ? "+" : n < 0 ? "-" : ""; }
 function gainWord(n){ return n > 0 ? "含み益" : n < 0 ? "含み損" : "増減なし"; }
 function yenDelta(n){ return sgnMark(n) + "¥" + fmtN(Math.abs(Math.round(n||0))); }
 function numDelta(n){ return sgnMark(n) + fmtN(Math.abs(Math.round(n||0))); }
@@ -652,6 +739,39 @@ function prevFilled(ym){
   return f.length ? f[f.length-1] : null;
 }
 function delta(cur, prev){ if (!isFinite(prev) || !prev) return NaN; return (cur-prev)/prev; }
+
+/* ---- 目隠し（人に見られそうなときに金額を伏せる。端末ごとの設定） ---- */
+const MASK = "••••••";
+let maskState = null;   // 端末の保存が使えない場合でも切り替えが効くよう、実体はこちらで持つ
+function maskOn(){
+  if (maskState === null){
+    try { maskState = localStorage.getItem(LS + ".mask") === "1"; } catch(e){ maskState = false; }
+  }
+  return maskState;
+}
+function setMask(v){
+  maskState = !!v;
+  try { localStorage.setItem(LS + ".mask", v ? "1" : "0"); } catch(e){}
+}
+function hideVal(s){ return maskOn() ? MASK : s; }
+
+/* ---- 今月の買付予定額。月ごとに上書きでき、無ければ設定の既定値を使う ---- */
+function budgetOf(ym){
+  const m = state.months[ym];
+  if (m && m.budget !== undefined && m.budget !== null && m.budget !== "") return +m.budget || 0;
+  return +state.cfg.monthlyBudget || 0;
+}
+
+/* ---- 検討中の銘柄 ---- */
+function watchList(){ return (state.cfg.watch = state.cfg.watch || []); }
+function watchNeed(w){ return (+w.price||0) * (+w.qty||0); }      // 希望株価での必要額
+function watchNow(w){ return (+w.cur||0) * (+w.qty||0); }          // 現在株価での必要額
+function watchHit(w){ return (+w.cur||0) > 0 && (+w.price||0) > 0 && (+w.cur) <= (+w.price); }
+function watchBought(w, ym){
+  const c = String(w.code||"").trim(), n = String(w.name||"").trim();
+  return (getM(ym).buys||[]).some(x =>
+    (c && String(x.code||"").trim() === c) || (!c && n && String(x.name||"").trim() === n));
+}
 
 /* ============================ サンプル ============================ */
 const SAMPLE_BROKERS = [
@@ -748,7 +868,7 @@ function scheduleSave(paths, cfg){
 function flushSave(){
   clearTimeout(localTimer); saveLocal();
   if (db){
-    if (saveCfgFlag) pushDoc("config/app", clone({ brokers: state.cfg.brokers, goalDividend: state.cfg.goalDividend, tickers: state.cfg.tickers || {} }));
+    if (saveCfgFlag) pushDoc("config/app", clone({ brokers: state.cfg.brokers, goalDividend: state.cfg.goalDividend, tickers: state.cfg.tickers || {}, monthlyBudget: +state.cfg.monthlyBudget || 0, watch: state.cfg.watch || [] }));
     savePaths.forEach(ym => { if (state.months[ym]) pushDoc("months/" + ym.replace("-","_"), clone(state.months[ym])); });
   }
   savePaths.clear(); saveCfgFlag = false;
@@ -765,7 +885,7 @@ function boot(){
     state.cfg = loaded.cfg; state.months = loaded.months || {}; state.demo = false;
   } else {
     const s = buildSample();
-    state.cfg = { brokers: s.brokers, goalDividend: s.goalDividend, tickers: {} };
+    state.cfg = { brokers: s.brokers, goalDividend: s.goalDividend, monthlyBudget: 0, tickers: {}, watch: [] };
     state.months = s.months; state.demo = true;
   }
   const f = filledMonths();
@@ -785,7 +905,7 @@ async function connect(){
       if (Array.isArray(d.brokers) && d.brokers.length){
         const sameList = state.cfg.brokers.length === d.brokers.length
           && state.cfg.brokers.every((b,i) => b.id === d.brokers[i].id && b.name === d.brokers[i].name);
-        state.cfg = { brokers: d.brokers, goalDividend: +d.goalDividend || 0, tickers: d.tickers || {} };
+        state.cfg = { brokers: d.brokers, goalDividend: +d.goalDividend || 0, tickers: d.tickers || {}, monthlyBudget: +d.monthlyBudget || 0, watch: Array.isArray(d.watch) ? d.watch : [] };
         state.demo = false;
         dbReady = true; saveLocal();
         if (!sameList || state.tab !== "entry") render();
@@ -916,12 +1036,20 @@ function renderDash(){
   h += '<div class="block"><div class="hero">'
     + '<svg class="wm" viewBox="0 0 48 40" aria-hidden="true"><path d="M21.5 13C17.5 6.5 11 2.2 2 1c6.5 5 10.5 11 12.5 18z" fill="#EBCE79"/><path d="M26.5 13C30.5 6.5 37 2.2 46 1c-6.5 5-10.5 11-12.5 18z" fill="#EBCE79"/><path d="M6 33c0-13 7.2-21 18-21s18 8 18 21z" fill="#EBCE79"/></svg>'
     + '<div class="k">時価総額</div>'
-    + '<div class="v num">' + yen(t.value) + '</div>'
-    + '<div class="man num">' + yenShort(t.value) + ' ・ ' + bs.length + '社合計</div>'
+    + '<div class="vrow">'
+      + '<div class="v num">' + hideVal(yen(t.value)) + '</div>'
+      + '<button class="eye" data-act="mask" aria-pressed="' + maskOn() + '" title="金額の表示を切り替える" aria-label="金額の表示を切り替える">'
+      + (maskOn()
+          ? '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A9.9 9.9 0 0 1 12 5c5.5 0 9 5.6 9 7 0 .6-.7 2-1.9 3.3"/><path d="M6.5 6.8C4.2 8.3 3 10.4 3 12c0 1.4 3.5 7 9 7 1.6 0 3-.4 4.2-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'
+          : '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12s3.5-7 9-7 9 5.6 9 7-3.5 7-9 7-9-5.6-9-7z"/><circle cx="12" cy="12" r="3"/></svg>')
+      + '</button>'
+    + '</div>'
+    + '<div class="man num">' + hideVal(yenShort(t.value)) + ' ・ ' + bs.length + '社合計</div>'
     + '<div class="row">'
-      + '<span class="pill">' + gainWord(t.gain) + ' <b class="num ' + dirClass(t.gain) + '">' + yenDelta(t.gain) + '</b></span>'
-      + '<span class="pill">損益率 <b class="num ' + dirClass(t.gain) + '">' + pctDelta(t.gainRate) + '</b></span>'
-      + '<span class="pill">年間配当 <b class="num">' + yen(t.div) + '</b></span>'
+      + '<span class="pill">' + gainWord(t.gain) + ' <b class="num ' + dirClass(t.gain) + '">' + hideVal(yenDelta(t.gain)) + '</b></span>'
+      + '<span class="pill">損益率 <b class="num ' + dirClass(t.gain) + '">' + hideVal(pctDelta(t.gainRate)) + '</b></span>'
+      + '<span class="pill">年間配当 <b class="num">' + hideVal(yen(t.div)) + '</b></span>'
+      + '<span class="yoc">取得額利回り<b class="num">' + pct(t.yoc) + '</b></span>'
     + '</div></div></div>';
 
   h += '<div class="block"><div class="sec"><h2>資 産</h2><div class="rule"></div><span class="note">前月比</span></div><div class="grid">'
@@ -948,8 +1076,12 @@ function renderDash(){
   }
   h += "</div>";
 
+  const bud = budgetOf(ym), rest = bud - t.invested;
   h += '<div class="block"><div class="sec"><h2>今月の動き</h2><div class="rule"></div><span class="note">' + ymLabel(ym) + '</span></div><div class="grid g2">'
     + tile("今月の投資額", yen(t.invested), "", '<div class="d flat">' + (getM(ym).buys||[]).length + "件の買付</div>")
+    + (bud > 0 ? tile("今月の買付予定額", yen(bud), "", '<div class="d flat">予定</div>') : "")
+    + (bud > 0 ? tile("予定に対する残り", '<span class="' + (rest < 0 ? "up" : "") + '">' + yen(Math.abs(rest)) + "</span>", "",
+        '<div class="d flat">' + (rest < 0 ? "予定を超えています" : "あと使える額") + "</div>") : "")
     + tile("年初来の投資額", yen(ytdInvested(ym)), "", '<div class="d flat">' + ym.slice(0,4) + "年1月から</div>")
     + "</div>";
   if (ly){
@@ -994,6 +1126,28 @@ function renderDash(){
     h += '<div class="buytotal"><span>合計</span><span class="num">' + yen(buys.reduce((s,x)=>s+(+x.amount||0),0)) + "</span></div></div>";
   }
   h += "</div>";
+
+  // 検討中の銘柄（登録があるときだけ）
+  const wl = watchList();
+  if (wl.length){
+    const hits = wl.filter(watchHit).length;
+    h += '<div class="block"><div class="sec"><h2>検討中の銘柄</h2><div class="rule"></div><span class="note">'
+      + (hits ? hits + "件が希望株価以下" : wl.length + "件") + "</span></div><div class=\"btable\">";
+    wl.forEach(w => {
+      const hit = watchHit(w), done = watchBought(w, ym);
+      h += '<div class="wrow">'
+        + '<span class="dot" style="background:' + (hit ? "var(--gold)" : "var(--line-2)") + '"></span>'
+        + '<div class="nm"><b>' + esc(w.name || w.code || "（未設定）") + "</b><small>"
+        + (w.code ? esc(w.code) + " ・ " : "")
+        + "希望 ¥" + fmtN(+w.price||0) + " × " + fmtN(+w.qty||0) + "株"
+        + (+w.cur ? " ・ 現在 ¥" + fmtN(+w.cur) : "") + "</small></div>"
+        + (done ? '<span class="chip done">買付済み</span>'
+                : hit ? '<span class="chip buy">買い時</span>'
+                : '<span class="chip wait">' + (+w.cur ? "+¥" + fmtN((+w.cur) - (+w.price||0)) : "株価未入力") + "</span>")
+        + "</div>";
+    });
+    h += "</div></div>";
+  }
 
   h += '<div class="btnrow"><button class="btn primary block" data-act="goEntry">' + ymLabel(ym) + 'の数字を入力する</button></div>';
   main.innerHTML = h;
@@ -1071,6 +1225,229 @@ function wireNum(input, onValue){
     if (onValue) onValue();
   });
 }
+
+/* ---------------- 写真から数字を読む ----------------
+   証券会社のアプリの画面を撮る（または保存済みの写真を選ぶ）→ 数字を指で囲む →
+   囲んだところだけを読み取って欄に入れる。画面全体を解析するより誤読がはるかに少ない。
+   読み取り部品は初回だけ通信で取り寄せるため、圏外では使えない。 */
+const OCR_CDN = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+let ocrWorker = null, ocrBusy = false, ocrState = null;
+
+const ocrEl    = document.getElementById("ocr");
+const ocrFile  = document.getElementById("ocrFile");
+const ocrCv    = document.getElementById("ocrCanvas");
+const ocrStage = document.getElementById("ocrStage");
+const ocrSel   = document.getElementById("ocrSel");
+const ocrFoot  = document.getElementById("ocrFoot");
+
+function ocrMsg(text, spinning){
+  ocrFoot.innerHTML = (spinning ? '<span class="spin"></span>' : "") + "<span>" + text + "</span>";
+}
+function ocrFieldsFor(b){
+  return (b.input === "gain")
+    ? [{k:"value",label:"時価評価額"},{k:"gain",label:"評価損益"},{k:"div",label:"年間配当"},{k:"shares",label:"保有株数"}]
+    : [{k:"cost",label:"取得額"},{k:"value",label:"時価評価額"},{k:"div",label:"年間配当"},{k:"shares",label:"保有株数"}];
+}
+function openOcr(bid){
+  const b = state.cfg.brokers.find(v => v.id === bid);
+  if (!b) return;
+  ocrState = { bid, name: b.name, fields: ocrFieldsFor(b), idx: 0, done: {}, img: null, scale: 1 };
+  ocrFile.value = "";
+  ocrFile.click();          // iPhone なら「写真を撮る／ライブラリから選ぶ」が出る
+}
+function closeOcr(){
+  ocrEl.hidden = true;
+  ocrSel.hidden = true;
+  if (ocrState && ocrState.url) URL.revokeObjectURL(ocrState.url);
+  ocrState = null;
+}
+function renderOcrChips(){
+  const host = document.getElementById("ocrChips");
+  host.innerHTML = ocrState.fields.map((f,i) =>
+    '<button type="button" data-ocrfield="' + i + '"'
+    + (i === ocrState.idx ? ' aria-current="true"' : "")
+    + (ocrState.done[f.k] ? ' class="done"' : "")
+    + ">" + esc(f.label) + (ocrState.done[f.k] ? " ✓" : "") + "</button>").join("");
+}
+ocrFile.addEventListener("change", () => {
+  const f = ocrFile.files && ocrFile.files[0];
+  if (!f || !ocrState) return;
+  const img = new Image();
+  ocrState.url = URL.createObjectURL(f);
+  img.onload = () => {
+    ocrState.img = img;
+    ocrEl.hidden = false;
+    document.getElementById("ocrTitle").textContent = ocrState.name + " ・ 写真から読み取り";
+    requestAnimationFrame(() => {
+      drawOcrImage();
+      renderOcrChips();
+      ocrMsg("読み取りたい数字を、<b>指でなぞって囲んで</b>ください。上の見出しが、いま入れる欄です。");
+    });
+  };
+  img.onerror = () => { closeOcr(); flashSaved("この画像は開けませんでした"); };
+  img.src = ocrState.url;
+});
+function drawOcrImage(){
+  const img = ocrState.img;
+  const maxW = ocrStage.clientWidth, maxH = ocrStage.clientHeight;
+  const s = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+  ocrCv.width = Math.max(1, Math.round(img.naturalWidth * s));
+  ocrCv.height = Math.max(1, Math.round(img.naturalHeight * s));
+  ocrState.scale = s;
+  ocrCv.getContext("2d").drawImage(img, 0, 0, ocrCv.width, ocrCv.height);
+}
+/* 指でなぞって範囲を決める */
+let ocrDrag = null;
+function stagePoint(ev){
+  const r = ocrCv.getBoundingClientRect();
+  const p = ev.touches ? ev.touches[0] : ev;
+  return { x: p.clientX - r.left, y: p.clientY - r.top, rect: r };
+}
+function showSel(a, b){
+  const sr = ocrStage.getBoundingClientRect(), cr = ocrCv.getBoundingClientRect();
+  const dx = cr.left - sr.left, dy = cr.top - sr.top;
+  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+  ocrSel.hidden = false;
+  ocrSel.style.left = (dx + x) + "px";
+  ocrSel.style.top = (dy + y) + "px";
+  ocrSel.style.width = Math.abs(b.x - a.x) + "px";
+  ocrSel.style.height = Math.abs(b.y - a.y) + "px";
+}
+ocrCv.addEventListener("pointerdown", ev => {
+  if (!ocrState || ocrBusy) return;
+  ev.preventDefault();
+  ocrDrag = stagePoint(ev);
+  try { ocrCv.setPointerCapture(ev.pointerId); } catch(e){}
+  showSel(ocrDrag, ocrDrag);
+});
+ocrCv.addEventListener("pointermove", ev => {
+  if (!ocrDrag) return;
+  ev.preventDefault();
+  showSel(ocrDrag, stagePoint(ev));
+});
+ocrCv.addEventListener("pointerup", ev => {
+  if (!ocrDrag) return;
+  const a = ocrDrag, b = stagePoint(ev);
+  ocrDrag = null;
+  const rect = { x: Math.min(a.x,b.x), y: Math.min(a.y,b.y), w: Math.abs(b.x-a.x), h: Math.abs(b.y-a.y) };
+  if (rect.w < 12 || rect.h < 8){
+    ocrSel.hidden = true;
+    ocrMsg("囲みが小さすぎます。数字をもう少し大きく囲んでください。");
+    return;
+  }
+  readOcrRegion(rect);
+});
+ocrCv.addEventListener("pointercancel", () => { ocrDrag = null; ocrSel.hidden = true; });
+
+function loadScript(src){
+  return new Promise((ok, ng) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = ok; s.onerror = () => ng(new Error("load"));
+    document.head.appendChild(s);
+  });
+}
+async function getOcrWorker(){
+  if (ocrWorker) return ocrWorker;
+  if (!window.Tesseract){
+    ocrMsg("読み取り部品を取り寄せています… 初回だけ少し時間がかかります", true);
+    await loadScript(OCR_CDN);
+  }
+  ocrMsg("読み取りの準備をしています…", true);
+  ocrWorker = await Tesseract.createWorker("eng", 1);
+  await ocrWorker.setParameters({
+    tessedit_char_whitelist: "0123456789,.",
+    tessedit_pageseg_mode: "7"          // 1行として読む
+  });
+  return ocrWorker;
+}
+/* 囲んだ部分を切り出し、拡大して白黒にしてから読ませる */
+function cropForOcr(rect){
+  const img = ocrState.img, s = ocrState.scale, up = 3;
+  const sx = rect.x / s, sy = rect.y / s, sw = rect.w / s, sh = rect.h / s;
+  const c = document.createElement("canvas");
+  c.width = Math.max(8, Math.round(sw * up));
+  c.height = Math.max(8, Math.round(sh * up));
+  const cx = c.getContext("2d", { willReadFrequently: true });
+  cx.imageSmoothingEnabled = true;
+  cx.imageSmoothingQuality = "high";
+  cx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  const d = cx.getImageData(0, 0, c.width, c.height), p = d.data;
+  let min = 255, max = 0, sum = 0, n = 0;
+  for (let i = 0; i < p.length; i += 4){
+    const g = p[i]*0.299 + p[i+1]*0.587 + p[i+2]*0.114;
+    p[i] = p[i+1] = p[i+2] = g;
+    if (g < min) min = g;
+    if (g > max) max = g;
+    sum += g; n++;
+  }
+  const range = Math.max(1, max - min), mean = sum / Math.max(1, n);
+  const darkBg = mean < 128;            // 黒い画面の証券アプリは白黒を反転させる
+  for (let i = 0; i < p.length; i += 4){
+    const g = (p[i] - min) / range * 255;
+    let v = g < 128 ? 0 : 255;
+    if (darkBg) v = 255 - v;
+    p[i] = p[i+1] = p[i+2] = v;
+  }
+  cx.putImageData(d, 0, 0);
+  return c;
+}
+function pickNumber(text){
+  const runs = String(text || "").match(/[\d][\d,.\s]*/g) || [];
+  let best = "";
+  runs.forEach(r => {
+    const digits = r.replace(/[^\d]/g, "");
+    if (digits.length > best.length) best = digits;
+  });
+  return best;
+}
+async function readOcrRegion(rect){
+  if (ocrBusy) return;
+  ocrBusy = true;
+  try {
+    const worker = await getOcrWorker();
+    ocrMsg("読み取っています…", true);
+    const { data } = await worker.recognize(cropForOcr(rect));
+    const num = pickNumber(data && data.text);
+    ocrSel.hidden = true;
+    if (!num){
+      ocrMsg("数字を読み取れませんでした。もう少し大きく、数字だけを囲んでみてください。");
+      return;
+    }
+    const f = ocrState.fields[ocrState.idx];
+    const inp = document.getElementById(ocrState.bid + "_" + f.k);
+    if (inp){
+      inp.value = num;
+      if (typeof inp.__commit === "function") inp.__commit();
+      else inp.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    ocrState.done[f.k] = true;
+    const next = ocrState.fields.findIndex((v,i) => i > ocrState.idx && !ocrState.done[v.k]);
+    const any = ocrState.fields.findIndex(v => !ocrState.done[v.k]);
+    ocrState.idx = next >= 0 ? next : (any >= 0 ? any : ocrState.idx);
+    renderOcrChips();
+    const remain = ocrState.fields.filter(v => !ocrState.done[v.k]).length;
+    if (!remain){
+      ocrMsg("<b>" + esc(f.label) + " に " + fmtN(+num) + " を入れました。</b> 4つとも入りました。閉じて数字をご確認ください。");
+    } else {
+      ocrMsg("<b>" + esc(f.label) + " に " + fmtN(+num) + " を入れました。</b> 次は <b>"
+             + esc(ocrState.fields[ocrState.idx].label) + "</b> です。");
+    }
+  } catch(e){
+    ocrSel.hidden = true;
+    ocrMsg("読み取り部品を用意できませんでした。通信できる場所でもう一度お試しください。");
+    diag.err++; diag.last = String(e && e.message || e).slice(0,100);
+  } finally {
+    ocrBusy = false;
+  }
+}
+document.getElementById("ocrChips").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-ocrfield]");
+  if (!b || !ocrState) return;
+  ocrState.idx = +b.dataset.ocrfield;
+  renderOcrChips();
+  ocrMsg("次に入れるのは <b>" + esc(ocrState.fields[ocrState.idx].label) + "</b> です。数字を囲んでください。");
+});
+window.addEventListener("resize", () => { if (ocrState && ocrState.img && !ocrEl.hidden){ drawOcrImage(); ocrSel.hidden = true; } });
 
 /* ---- 数字パッド ---- */
 const padEl = document.getElementById("pad");
@@ -1202,7 +1579,8 @@ function renderEntry(){
       + '<span class="st' + (any ? " ok" : "") + '">' + (any ? "入力済み" : "未入力") + "</span></div>"
       + '<div class="modes"><span>入力するのは</span>'
       + '<button type="button" data-mode="cost" aria-pressed="' + (!gainMode) + '">取得額</button>'
-      + '<button type="button" data-mode="gain" aria-pressed="' + gainMode + '">評価損益</button></div>'
+      + '<button type="button" data-mode="gain" aria-pressed="' + gainMode + '">評価損益</button>'
+      + '<button type="button" class="cam" data-act="ocr" data-bid="' + b.id + '">写真から読む</button></div>'
       + '<div class="fields"></div><div class="csum"></div>';
     card.querySelector(".modes").addEventListener("click", ev => {
       const mb = ev.target.closest("button[data-mode]"); if (!mb) return;
@@ -1284,8 +1662,21 @@ function renderEntry(){
   buySec.innerHTML = '<div class="sec" style="margin-top:20px"><h2>今月の買付</h2><div class="rule"></div><span class="note" id="buyCount"></span></div>'
     + '<div class="card" id="buyCard"><div id="buyRows"></div>'
     + '<button class="btn block" data-act="addBuy" style="margin-top:10px">＋ 銘柄を追加</button>'
-    + '<div class="csum"><span>今月の投資額</span><b class="num" id="buyTotal">¥0</b></div></div>';
+    + '<div class="buysum">'
+      + '<div class="r"><span>今月の投資額</span><b class="num" id="buyTotal">¥0</b></div>'
+      + '<div class="r"><span>買付予定額</span>'
+        + '<span class="wrap" style="position:relative;display:flex;align-items:center">'
+        + '<input id="budget" ' + numAttrs(ymLabel(ym) + " ・ 買付予定額", "円") + ' placeholder="0" value="' + (budgetOf(ym) || "") + '"></span></div>'
+      + '<div class="r"><span id="restLabel">予定に対する残り</span><b class="num" id="buyRest">¥0</b></div>'
+    + '</div></div>';
   wrap.appendChild(buySec);
+
+  // 検討中の銘柄
+  const watchSec = document.createElement("div");
+  watchSec.innerHTML = '<div class="sec" style="margin-top:20px"><h2>検討中の銘柄</h2><div class="rule"></div><span class="note" id="watchCount"></span></div>'
+    + '<div id="watchRows"></div>'
+    + '<button class="btn block" data-act="addWatch">＋ 検討中の銘柄を追加</button>';
+  wrap.appendChild(watchSec);
 
   const tipBox = document.createElement("div");
   tipBox.className = "help";
@@ -1301,6 +1692,9 @@ function renderEntry(){
     + "・買付は<b>証券コード</b>を入れると銘柄名が自動で入ります。名前を直せば、そのコードの名前として次から覚えます。<br>"
     + "・先に買付を入れてから、各社の「前月+買付」を押すと取得額と株数が埋まります。<br>"
     + "・前月比が±35%を超えると桁の確認を促します。<br>"
+    + "・各社の<b>「写真から読む」</b>で、証券会社の画面を撮る／保存済みの写真を選ぶと、数字を指で囲むだけで欄に入ります。読み違いがあるので必ず目で確認してください。<br>"
+    + "・<b>検討中の銘柄</b>に希望株価と株数を入れておくと、「この銘柄を買付に入れる」で金額と株数ごと流し込めます。<br>"
+    + "・現在株価は手で入れてください。希望株価以下になると金色に変わります。<br>"
     + "・入力はそのつど自動保存されます。";
   wrap.appendChild(tipBox);
 
@@ -1313,7 +1707,16 @@ function renderEntry(){
   main.innerHTML = "";
   main.appendChild(wrap);
 
+  const budIn = document.getElementById("budget");
+  const budCommit = () => {
+    ensureM(ym).budget = parseNum(budIn.value);
+    updateEntryTotal(); editingLock = ym; saveMonth(ym);
+  };
+  budIn.addEventListener("blur", () => { editingLock = null; });
+  wireNum(budIn, budCommit);
+
   rebuildBuyRows();
+  rebuildWatchRows();
 }
 
 function updateCardSum(card, bid){
@@ -1331,11 +1734,18 @@ function updateCardSum(card, bid){
     + '<span>平均単価 <b class="num">' + (isFinite(avg) ? "¥" + fmtN(avg,1) : "—") + "</b></span>";
 }
 function updateEntryTotal(){
-  const t = totals(state.month);
+  const ym = state.month, t = totals(ym);
   const el = document.getElementById("buyTotal");
   if (el) el.textContent = yen(t.invested);
   const c = document.getElementById("buyCount");
-  if (c) c.textContent = (getM(state.month).buys||[]).length + "件";
+  if (c) c.textContent = (getM(ym).buys||[]).length + "件";
+  const bud = budgetOf(ym), rest = bud - t.invested;
+  const r = document.getElementById("buyRest"), rl = document.getElementById("restLabel");
+  if (r){
+    r.textContent = bud > 0 ? yen(Math.abs(rest)) : "—";
+    r.className = "num " + (bud > 0 && rest < 0 ? "up" : "");
+  }
+  if (rl) rl.textContent = (bud > 0 && rest < 0) ? "予定を超えた額" : "予定に対する残り";
 }
 function rebuildBuyRows(){
   const host = document.getElementById("buyRows");
@@ -1351,14 +1761,97 @@ function rebuildBuyRows(){
   m.buys.forEach(x => host.appendChild(buyRowEl(x)));
   updateEntryTotal();
 }
-function buyRowEl(x){
-  const row = document.createElement("div");
-  row.className = "brow-in";
+/* 銘柄名の入力候補。買付・検討中の両方から使う */
+function ensureNameList(){
+  let dl = document.getElementById("nameList");
+  if (!dl){ dl = document.createElement("datalist"); dl.id = "nameList"; document.body.appendChild(dl); }
   const names = Array.from(new Set(
-    Object.values(state.months).flatMap(mm => (mm.buys||[]).map(v=>v.name))
+    Object.values(state.months).flatMap(mm => (mm.buys||[]).map(v => v.name))
+      .concat(watchList().map(w => w.name))
       .concat(Object.values(state.cfg.tickers || {}))
       .filter(Boolean)
   ));
+  dl.innerHTML = names.map(n => '<option value="' + esc(n) + '"></option>').join("");
+}
+
+function rebuildWatchRows(){
+  const host = document.getElementById("watchRows");
+  if (!host) return;
+  host.innerHTML = "";
+  const wl = watchList();
+  if (!wl.length){
+    const p = document.createElement("div");
+    p.className = "help";
+    p.style.cssText = "padding:2px 2px 10px";
+    p.textContent = "買いたい銘柄と希望株価・株数を入れておくと、買付のときにそのまま流し込めます。";
+    host.appendChild(p);
+  }
+  wl.forEach(w => host.appendChild(watchRowEl(w)));
+  const c = document.getElementById("watchCount");
+  if (c) c.textContent = wl.length ? wl.length + "件" : "";
+}
+function watchRowEl(w){
+  const card = document.createElement("div");
+  card.className = "watch";
+  ensureNameList();
+  const nameId = "w_" + w.id;
+  card.innerHTML = '<div class="whd"><span class="dot" data-wdot></span>'
+    + '<span class="nm" data-wname>' + esc(w.name || w.code || "（未設定）") + "</span>"
+    + '<span class="chip wait" data-wchip>—</span></div>'
+    + '<div class="brow-in" style="border-top:0;padding-top:0">'
+      + '<div><div class="lbl">証券コード</div><input class="n" data-w="code" ' + numAttrs("証券コード", "code") + ' placeholder="8058" value="' + esc(w.code||"") + '"></div>'
+      + '<div><div class="lbl">株数</div><input class="n" data-w="qty" ' + numAttrs("検討中 ・ 株数", "株") + ' placeholder="100" value="' + (w.qty||"") + '"></div>'
+      + '<div class="full"><div class="lbl">銘柄名</div><input type="text" id="' + nameId + '" list="nameList" data-w="name" autocomplete="off" placeholder="コードを入れると自動で入ります" value="' + esc(w.name||"") + '"></div>'
+      + '<div><div class="lbl">希望株価（円）</div><input class="n" data-w="price" ' + numAttrs("検討中 ・ 希望株価", "円") + ' placeholder="2400" value="' + (w.price||"") + '"></div>'
+      + '<div><div class="lbl">現在株価（円）</div><input class="n" data-w="cur" ' + numAttrs("検討中 ・ 現在株価", "円") + ' placeholder="2480" value="' + (w.cur||"") + '"></div>'
+    + '</div>'
+    + '<div class="wsum" data-wsum></div>'
+    + '<div class="btnrow" style="margin:10px 0 0">'
+      + '<button class="btn" data-act="watchBuy" data-id="' + w.id + '">この銘柄を買付に入れる</button>'
+      + '<button class="btn danger" data-act="watchDel" data-id="' + w.id + '">削除</button>'
+    + '</div>';
+
+  const nameIn = card.querySelector('[data-w="name"]');
+  const refresh = () => {
+    const hit = watchHit(w), done = watchBought(w, state.month);
+    card.classList.toggle("hit", hit && !done);
+    card.querySelector("[data-wdot]").style.background = hit ? "var(--gold)" : "var(--line-2)";
+    card.querySelector("[data-wname]").textContent = w.name || w.code || "（未設定）";
+    const chip = card.querySelector("[data-wchip]");
+    if (done){ chip.className = "chip done"; chip.textContent = "買付済み"; }
+    else if (hit){ chip.className = "chip buy"; chip.textContent = "買い時"; }
+    else { chip.className = "chip wait"; chip.textContent = (+w.cur) ? "希望まで +¥" + fmtN((+w.cur) - (+w.price||0)) : "現在株価を入れると判定します"; }
+    card.querySelector("[data-wsum]").innerHTML =
+        "<span>希望での必要額 <b class=\"num\">" + yen(watchNeed(w)) + "</b></span>"
+      + ((+w.cur) ? "<span>現在の必要額 <b class=\"num\">" + yen(watchNow(w)) + "</b></span>" : "");
+  };
+
+  card.querySelectorAll("[data-w]").forEach(el => {
+    const commit = () => {
+      const k = el.dataset.w;
+      w[k] = (k === "code" || k === "name") ? el.value : parseNum(el.value);
+      if (k === "code"){
+        const nm = lookupTicker(w.code);
+        if (nm && (!nameIn.value.trim() || nameIn.dataset.auto === "1")){
+          nameIn.value = nm; nameIn.dataset.auto = "1"; w.name = nm;
+        }
+      }
+      if (k === "name") nameIn.dataset.auto = "0";
+      refresh(); saveCfg();
+    };
+    if (el.classList.contains("n")) wireNum(el, commit);
+    else { el.addEventListener("input", commit); el.addEventListener("change", commit); }
+  });
+  nameIn.addEventListener("change", () => { if (w.code && w.name) learnTicker(w.code, w.name); });
+  if (w.name && lookupTicker(w.code) !== w.name) nameIn.dataset.auto = "0";
+  refresh();
+  return card;
+}
+
+function buyRowEl(x){
+  const row = document.createElement("div");
+  row.className = "brow-in";
+  ensureNameList();
   row.innerHTML =
       '<div><div class="lbl">証券コード</div><input class="n" data-k="code" ' + numAttrs("証券コード", "code") + ' placeholder="8058"' + ' value="' + esc(x.code||"") + '"></div>'
     + '<div><div class="lbl">証券会社</div><select data-k="bid">' + state.cfg.brokers.map(b => '<option value="' + b.id + '"' + (b.id===x.bid?" selected":"") + ">" + esc(b.name) + "</option>").join("") + "</select></div>"
@@ -1366,9 +1859,6 @@ function buyRowEl(x){
     + '<div><div class="lbl">買付金額（円）</div><input class="n" data-k="amount" ' + numAttrs("買付金額", "円") + ' placeholder="0" value="' + (x.amount || "") + '"><div class="echo num" data-echo></div></div>'
     + '<div><div class="lbl">株数（任意）</div><input class="n" data-k="shares" ' + numAttrs("買付の株数", "株") + ' placeholder="0" value="' + (x.shares || "") + '"></div>'
     + '<div style="display:flex;align-items:flex-end"><button class="del" type="button">削除</button></div>';
-  let dl = document.getElementById("nameList");
-  if (!dl){ dl = document.createElement("datalist"); dl.id = "nameList"; document.body.appendChild(dl); }
-  dl.innerHTML = names.map(n => '<option value="' + esc(n) + '"></option>').join("");
 
   const amtEcho = row.querySelector("[data-echo]");
   const nameIn = row.querySelector('[data-k="name"]');
@@ -1611,7 +2101,12 @@ function renderSettings(){
     + '<div class="f"><label for="goal"><span>年間配当の目標額</span></label>'
     + '<div class="wrap"><span class="unit">¥</span><input id="goal" ' + numAttrs("年間配当の目標額", "円") + ' placeholder="400000" value="' + (state.cfg.goalDividend || "") + '"></div>'
     + '<div class="echo num" id="goalEcho"></div>'
-    + '<div class="hint"><span class="sug" style="border-style:solid;cursor:default">総括の達成率バーに使います</span></div></div></div></div>';
+    + '<div class="hint"><span class="sug" style="border-style:solid;cursor:default">総括の達成率バーに使います</span></div></div>'
+    + '<div class="f" style="margin-top:12px"><label for="mbudget"><span>毎月の買付予定額（標準）</span></label>'
+    + '<div class="wrap"><span class="unit">¥</span><input id="mbudget" ' + numAttrs("毎月の買付予定額", "円") + ' placeholder="200000" value="' + (state.cfg.monthlyBudget || "") + '"></div>'
+    + '<div class="echo num" id="mbudgetEcho"></div>'
+    + '<div class="hint"><span class="sug" style="border-style:solid;cursor:default">毎月の初期値。入力画面でその月だけ変えられます</span></div></div>'
+    + "</div></div>";
 
   h += '<div class="block"><div class="sec"><h2>表 示</h2><div class="rule"></div></div>'
     + '<div class="seg">'
@@ -1622,8 +2117,11 @@ function renderSettings(){
 
   h += '<div class="block"><div class="sec"><h2>データ</h2><div class="rule"></div><span class="note">'
     + (db ? "クラウド保存中" : "この端末に保存中") + "</span></div>"
+    + '<div class="btnrow"><button class="btn" data-act="saveJson">バックアップをファイルに保存</button>'
+    + '<button class="btn primary" data-act="pickFile">ファイルから復元</button></div>'
+    + '<input type="file" id="restoreFile" accept=".json,.txt,application/json,text/plain" hidden>'
     + '<div class="btnrow"><button class="btn" data-act="csv">CSVで書き出す</button>'
-    + '<button class="btn" data-act="showJson">バックアップを表示</button></div>'
+    + '<button class="btn" data-act="showJson">バックアップを文字で表示</button></div>'
     + '<div id="ioBox"></div>'
     + '<div class="btnrow" style="margin-top:4px"><button class="btn danger" data-act="wipe">すべての記録を消す</button></div>'
     + '<div class="help" style="margin-top:6px">動作記録：入力画面の作り直し ' + diag.rebuild + ' 回 ／ エラー ' + diag.err + ' 件'
@@ -1653,6 +2151,30 @@ function renderSettings(){
   };
   wireNum(goal, goalCommit);
   goalEcho.textContent = echoText(state.cfg.goalDividend, "円");
+
+  const mb = document.getElementById("mbudget"), mbEcho = document.getElementById("mbudgetEcho");
+  const mbCommit = () => {
+    state.cfg.monthlyBudget = parseNum(mb.value);
+    mbEcho.textContent = echoText(state.cfg.monthlyBudget, "円");
+    saveCfg();
+  };
+  wireNum(mb, mbCommit);
+  mbEcho.textContent = echoText(state.cfg.monthlyBudget, "円");
+
+  const rf = document.getElementById("restoreFile");
+  if (rf) rf.addEventListener("change", () => {
+    const f = rf.files && rf.files[0];
+    if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      flashSaved(restoreFrom(fr.result)
+        ? "復元しました"
+        : "このファイルは読み取れませんでした");
+      rf.value = "";
+    };
+    fr.onerror = () => { flashSaved("ファイルを開けませんでした"); rf.value = ""; };
+    fr.readAsText(f);
+  });
 }
 
 /* ============================ 操作 ============================ */
@@ -1675,30 +2197,55 @@ function buildCsv(){
   }));
   return "﻿" + lines.join("\r\n");
 }
-async function doCsv(){
-  const name = "kabutocho_" + ymNow().replace("-","") + ".csv";
+async function saveFile(name, text, mime){
   if (downloads){
-    try {
-      await downloads.save({ filename: name, data: buildCsv() });
-      flashSaved("書き出しました");
-    } catch(e){
-      if (!e || e.code !== "declined") showJson("書き出せませんでした。下のバックアップをコピーして保存してください。");
-    }
-    return;
+    try { await downloads.save({ filename: name, data: text }); flashSaved("書き出しました"); return true; }
+    catch(e){ if (e && e.code === "declined") return true; }
   }
   // 自分のサーバーに置いた場合は、ブラウザの保存機能をそのまま使える
   if (typeof window.claude === "undefined"){
     try {
-      const url = URL.createObjectURL(new Blob([buildCsv()], {type:"text/csv"}));
+      const url = URL.createObjectURL(new Blob([text], {type: mime}));
       const a = document.createElement("a");
       a.href = url; a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       flashSaved("書き出しました");
-      return;
+      return true;
     } catch(e){}
   }
-  showJson("この画面ではファイルの保存ができません。下のバックアップをコピーして保存してください。");
+  return false;
+}
+async function doCsv(){
+  const ok = await saveFile("kabutocho_" + ymNow().replace("-","") + ".csv", buildCsv(), "text/csv");
+  if (!ok) showJson("この画面ではファイルの保存ができません。下のバックアップをコピーして保存してください。");
+}
+async function doJson(){
+  const ok = await saveFile("kabutocho_backup_" + ymNow().replace("-","") + ".json",
+                            JSON.stringify(snapshot(), null, 1), "application/json");
+  if (!ok) showJson("この画面ではファイルの保存ができません。下のバックアップをコピーして保存してください。");
+}
+/* バックアップの文字列から書き戻す。ファイルからでも貼り付けからでも同じ道を通す */
+function restoreFrom(text){
+  let d;
+  try { d = JSON.parse(String(text || "")); } catch(e){ return false; }
+  if (!d || !d.cfg || !Array.isArray(d.cfg.brokers) || !d.cfg.brokers.length) return false;
+  const c = d.cfg;
+  state.cfg = {
+    brokers: c.brokers,
+    goalDividend: +c.goalDividend || 0,
+    monthlyBudget: +c.monthlyBudget || 0,
+    tickers: c.tickers || {},
+    watch: Array.isArray(c.watch) ? c.watch : []
+  };
+  state.months = (d.months && typeof d.months === "object") ? d.months : {};
+  state.demo = false;
+  const f = filledMonths();
+  if (f.length) state.month = f[f.length - 1];
+  entryBuiltFor = ""; closePad();
+  scheduleSave(Object.keys(state.months), true);
+  render();
+  return true;
 }
 function showJson(msg){
   const box = document.getElementById("ioBox");
@@ -1771,6 +2318,52 @@ document.addEventListener("click", ev => {
     row.querySelector("input").focus();
     updateEntryTotal(); saveMonth(state.month);
   }
+  else if (a === "mask"){
+    setMask(!maskOn());
+    render();
+  }
+  else if (a === "ocr"){ closePad(); openOcr(el.dataset.bid); }
+  else if (a === "ocrClose"){ closeOcr(); flashSaved("読み取った数字をご確認ください"); }
+  else if (a === "addWatch"){
+    const w = { id: uid(), code:"", name:"", price:0, qty:0, cur:0 };
+    watchList().push(w);
+    const host = document.getElementById("watchRows");
+    if (host && host.querySelector(".help")) host.innerHTML = "";
+    const row = watchRowEl(w);
+    host.appendChild(row);
+    const c = document.getElementById("watchCount");
+    if (c) c.textContent = watchList().length + "件";
+    row.querySelector("input").focus();
+    saveCfg();
+  }
+  else if (a === "watchDel"){
+    const w = watchList().find(v => v.id === el.dataset.id);
+    if (!w) return;
+    confirmBox((w.name || w.code || "この銘柄") + " を検討中から外します。", "外す", () => {
+      state.cfg.watch = watchList().filter(v => v.id !== w.id);
+      closePad(); rebuildWatchRows(); saveCfg();
+      flashSaved("外しました");
+    });
+  }
+  else if (a === "watchBuy"){
+    const w = watchList().find(v => v.id === el.dataset.id);
+    if (!w) return;
+    const m = ensureM(state.month);
+    const unit = (+w.cur) || (+w.price) || 0;
+    const x = { id: uid(), code: w.code || "", name: w.name || "",
+                bid: (state.cfg.brokers[0]||{}).id, amount: Math.round(unit * (+w.qty||0)), shares: +w.qty||0 };
+    m.buys.push(x);
+    closePad(); rebuildBuyRows(); rebuildWatchRows();
+    saveMonth(state.month);
+    flashSaved((w.name || w.code || "銘柄") + " を買付に入れました");
+    const host = document.getElementById("buyRows");
+    if (host && host.lastElementChild) host.lastElementChild.scrollIntoView({block:"center"});
+  }
+  else if (a === "saveJson"){ doJson(); }
+  else if (a === "pickFile"){
+    const inp = document.getElementById("restoreFile");
+    if (inp) inp.click();
+  }
   else if (a === "addBroker"){
     const id = "b" + uid();
     state.cfg.brokers.push({ id, name: "証券会社 " + (state.cfg.brokers.length + 1) });
@@ -1792,13 +2385,7 @@ document.addEventListener("click", ev => {
   else if (a === "showJson") showJson("");
   else if (a === "restore"){
     const box = document.getElementById("jsonBox");
-    try {
-      const d = JSON.parse(box.value);
-      if (!d.cfg || !Array.isArray(d.cfg.brokers)) throw 0;
-      state.cfg = d.cfg; state.months = d.months || {}; state.demo = false;
-      entryBuiltFor = ""; scheduleSave(Object.keys(state.months), true); render();
-      flashSaved("復元しました");
-    } catch(e){ flashSaved("読み取れませんでした"); }
+    flashSaved(restoreFrom(box ? box.value : "") ? "復元しました" : "読み取れませんでした");
   }
   else if (a === "delMonth"){
     const ym = state.month;
